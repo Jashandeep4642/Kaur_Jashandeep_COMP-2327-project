@@ -11,7 +11,7 @@ from account.bank_account import BankAccount
 from account.client import Client
 from transaction.bank_transfer_transaction import BankTransferTransaction
 from transaction.transaction_status import TransactionStatus
-
+from fee.base_percentage_fee_strategy import BasePercentageFeeStrategy
 
 class TestBankTransferTransaction(unittest.TestCase):
     """Test bank transfer initialization, fees, and processing."""
@@ -27,6 +27,9 @@ class TestBankTransferTransaction(unittest.TestCase):
         )
         self.transfer = BankTransferTransaction(
             "98765", Decimal("100.00"), self.source, self.target
+        )
+        self.transfer.set_fee_strategy(
+            BasePercentageFeeStrategy(Decimal("1.00"), Decimal("0.007"))
         )
 
     # Constructor tests
@@ -98,6 +101,10 @@ class TestBankTransferTransaction(unittest.TestCase):
         transfer = BankTransferTransaction(
             "98765", Decimal("500.00"), self.source, self.target
         )
+        
+        transfer.set_fee_strategy(
+            BasePercentageFeeStrategy(Decimal("1.00"), Decimal("0.007"))
+        )
 
         self.assertEqual(Decimal("3.50"), transfer.fees)
 
@@ -131,6 +138,10 @@ class TestBankTransferTransaction(unittest.TestCase):
         """Verify insufficient funds fail without moving funds."""
         transfer = BankTransferTransaction(
             "98765", Decimal("1000.00"), self.source, self.target
+        )
+
+        transfer.set_fee_strategy(
+            BasePercentageFeeStrategy(Decimal("1.00"), Decimal("0.007"))
         )
 
         transfer.process()
