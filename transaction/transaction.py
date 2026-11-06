@@ -8,6 +8,8 @@ from decimal import Decimal
 
 from account.bank_account import BankAccount
 from transaction.transaction_status import TransactionStatus
+from fee.fee_strategy import FeeStrategy
+
 
 
 class Transaction(ABC):
@@ -40,11 +42,13 @@ class Transaction(ABC):
         self.__amount = amount
         self.__status = TransactionStatus.PENDING
         self.__account = account
+        self.__fee_strategy = None
 
     @property
     def transaction_id(self) -> str:
         """Return the transaction identifier."""
         return self.__transaction_id
+      
 
     @property
     def amount(self) -> Decimal:
@@ -70,11 +74,17 @@ class Transaction(ABC):
         """Return the source bank account."""
         return self.__account
 
+    def set_fee_strategy(self, fee_strategy: FeeStrategy) -> None:
+        """Set the strategy used to calculate transaction fees."""
+        self.__fee_strategy = fee_strategy
+
     @property
-    @abstractmethod
     def fees(self) -> Decimal:
-        """Return the processing fee defined by the subclass."""
-        pass
+        """Return the strategy fee, or zero when no strategy is set."""
+        if self.__fee_strategy is None:
+            return Decimal("0.00")
+
+        return self.__fee_strategy.get_fee(self.amount)
 
     @abstractmethod
     def process(self) -> None:

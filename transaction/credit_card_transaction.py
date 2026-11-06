@@ -36,10 +36,7 @@ class CreditCardTransaction(Transaction):
         super().__init__(transaction_id, amount, account)
         self.__authorization_code = authorization_code
 
-    @property
-    def fees(self) -> Decimal:
-        """Return a processing fee of 2% of the transaction amount."""
-        return self.amount * Decimal("0.02")
+
 
     def process(self) -> None:
         """Validate and process the credit card payment.
