@@ -11,7 +11,7 @@ from account.bank_account import BankAccount
 from account.client import Client
 from transaction.credit_card_transaction import CreditCardTransaction
 from transaction.transaction_status import TransactionStatus
-
+from fee.percentage_fee_strategy import PercentageFeeStrategy
 
 class TestCreditCardTransaction(unittest.TestCase):
     """Test credit card initialization, fees, and processing."""
@@ -24,6 +24,13 @@ class TestCreditCardTransaction(unittest.TestCase):
         )
         self.payment = CreditCardTransaction(
             "98765", Decimal("100.00"), self.account, "AUTH-123"
+        )
+
+        self.payment = CreditCardTransaction(
+            "98765", Decimal("100.00"), self.account, "AUTH-123"
+        )
+        self.payment.set_fee_strategy(
+            PercentageFeeStrategy(Decimal("0.02"))
         )
 
     # Constructor tests
@@ -107,11 +114,15 @@ class TestCreditCardTransaction(unittest.TestCase):
             "98765", Decimal("1000.00"), self.account, "AUTH-123"
         )
 
+        payment.set_fee_strategy(
+            PercentageFeeStrategy(Decimal("0.02"))
+        )
+
         payment.process()
 
         self.assertEqual(TransactionStatus.FAILED, payment.status)
         self.assertEqual(Decimal("1000.00"), self.account.balance)
-
+        
     def test_process_authorization_code_blank(self):
         """Verify a blank authorization code fails without moving funds."""
         payment = CreditCardTransaction(
