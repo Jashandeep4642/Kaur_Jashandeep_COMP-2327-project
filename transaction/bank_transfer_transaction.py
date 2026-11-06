@@ -36,10 +36,7 @@ class BankTransferTransaction(Transaction):
         super().__init__(transaction_id, amount, account)
         self.__target_account = target_account
 
-    @property
-    def fees(self) -> Decimal:
-        """Return the larger of $1.00 or 0.7% of the amount."""
-        return max(Decimal("1.00"), self.amount * Decimal("0.007"))
+
 
     def process(self) -> None:
         """Validate and process the bank transfer.
@@ -63,6 +60,7 @@ class BankTransferTransaction(Transaction):
             self.account.withdraw(self.fees)
             self.__target_account.deposit(self.amount)
             self.status = TransactionStatus.PROCESSED
+            self.on_processed.notify(self)
 
     def __str__(self) -> str:
         """Return transaction details with the target account ID."""
