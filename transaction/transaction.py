@@ -9,6 +9,7 @@ from decimal import Decimal
 from account.bank_account import BankAccount
 from transaction.transaction_status import TransactionStatus
 from fee.fee_strategy import FeeStrategy
+from events.event import Event
 
 
 
@@ -43,6 +44,7 @@ class Transaction(ABC):
         self.__status = TransactionStatus.PENDING
         self.__account = account
         self.__fee_strategy = None
+        self.__processed_event = Event()
 
     @property
     def transaction_id(self) -> str:
@@ -73,6 +75,11 @@ class Transaction(ABC):
     def account(self) -> BankAccount:
         """Return the source bank account."""
         return self.__account
+
+    @property
+    def on_processed(self) -> Event:
+        """Return the event raised when this transaction is processed."""
+        return self.__processed_event
 
     def set_fee_strategy(self, fee_strategy: FeeStrategy) -> None:
         """Set the strategy used to calculate transaction fees."""
